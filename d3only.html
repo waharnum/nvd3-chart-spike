@@ -3,54 +3,62 @@
 <script src="js/d3.min.js" charset="utf-8"></script>
 </head>
 <body>
+<svg></svg>
 
 <script>
 // Via tutorial at https://square.github.io/intro-to-d3/parts-of-a-graph/
 l = function(x) {console.log(x)};
 
-var numbers = [ 5, 4, 10, 1],
-  data = [
-    {date: '2014-01-01', amount: 10},
-    {date: '2014-02-01', amount: 20},
-    {date: '2014-03-01', amount: 40},
-    {date: '2014-04-01', amount: 80}
-  ];
+var sales = [
+  { product: 'Hoodie',  count: 7 },
+  { product: 'Jacket',  count: 6 },
+  { product: 'Snuggie', count: 9 },
+  { product: 'Snowpants', count: 13 },
+  { product: 'Jorts', count: 3 },
+  { product: 'Tights', count: 5 }
+];
 
-l(d3.min(numbers));
-l(d3.max(data, function(d,i) {return d.amount}));
-l(d3.extent(numbers));
+var svg = d3.select('svg');
+svg.size();
+// 1 -- one <svg> element exists
 
-var y = d3.scale.linear()
-  .domain([0,80])
-  .range([200, 0]);
+var rects = svg.selectAll('rect')
+  .data(sales);
 
-y.domain(d3.extent(data, function(d) {return d.amount}));
+l(rects.size());
 
-l(y(0));
-l(y(80));
+var newRects = rects.enter();
 
-var x = d3.time.scale()
-  .domain([
-    new Date(Date.parse('2014-01-01')),
-    new Date(Date.parse('2014-12-01'))
-  ])
-  .range([0,300]);
+var maxCount = d3.max(sales, function(d, i) {
+  return d.count;
+});
+var x = d3.scale.linear()
+  .range([0, 300])
+  .domain([0, maxCount]);
+var y = d3.scale.ordinal()
+  .rangeRoundBands([0, 150])
+  .domain(sales.map(function(d, i) {
+    return d.product;
+  }));
 
-x(new Date(Date.parse('2014-02-01')));
+newRects.append('rect')
+  .attr('x', x(0))
+  .attr('y', function(d, i) {
+    return y(d.product);
+  })
+  .attr('height', y.rangeBand())
+  .attr('width', function(d, i) {
+    return x(d.count);
+  });
 
-var xAxis = d3.svg.axis()
-  .scale(x)         // x is the d3.time.scale()
-  .orient('bottom') // the ticks go below the graph
-  .ticks(3);        // specify the number of ticks
+sales.pop();
+var rects = rects.data(sales);
+var rectsToRemove = rects.exit();
+l(rectsToRemove.size());
 
-var svg = d3.select('body')
-  .append('svg')        // create an <svg> element
-    .attr('width', 800) // set its dimentions
-    .attr('height', 300);
+rectsToRemove.remove();
 
-svg.append('g')            // create a <g> element
-  .attr('class', 'x axis') // specify classes
-  .call(xAxis);            // let the axis do its thing
+// 0 -- no <rect> elements exist yet!
 
 </script>
 
