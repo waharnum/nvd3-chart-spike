@@ -1,126 +1,56 @@
 <html>
 <head>
 <script src="js/d3.min.js" charset="utf-8"></script>
-<script src="js/nv.d3.min.js" charset="utf-8"></script>
-<link rel="stylesheet" href="css/nv.d3.css" type="text/css"></link>
 </head>
 <body>
-  <div id="chart">
-<svg </svg>
-</div>
 
 <script>
+// Via tutorial at https://square.github.io/intro-to-d3/parts-of-a-graph/
+l = function(x) {console.log(x)};
 
-//Regular pie chart example
-nv.addGraph(function() {
-  var chart = nv.models.pieChart()
-      .x(function(d) { return d.label })
-      .y(function(d) { return d.value })
-      .showLabels(true)
-      .donut(true);
+var numbers = [ 5, 4, 10, 1],
+  data = [
+    {date: '2014-01-01', amount: 10},
+    {date: '2014-02-01', amount: 20},
+    {date: '2014-03-01', amount: 40},
+    {date: '2014-04-01', amount: 80}
+  ];
 
-    d3.select("#chart svg")
-        .datum(exampleData())
-        .transition().duration(350)
-        .call(chart);
+l(d3.min(numbers));
+l(d3.max(data, function(d,i) {return d.amount}));
+l(d3.extent(numbers));
 
+var y = d3.scale.linear()
+  .domain([0,80])
+  .range([200, 0]);
 
-  chart.pie.dispatch.on('elementClick', function(e,i) {
+y.domain(d3.extent(data, function(d) {return d.amount}));
 
-    // console.log(e.index);
-    // console.log(d3.select("#chart svg").data([e.index]));
-    console.log(d3.select(chart.container.offsetWidth));    
+l(y(0));
+l(y(80));
 
-    /* d3.select("#chart svg")
-      .datum(exampleData2())
-      .transition().duration(500)
-      .call(chart); */
-  })
-/*
-  chart.pie.dispatch.on('elementMouseout', function(e) {
-    d3.select("#chart svg")
-      .datum(exampleData())
-      .transition().duration(500)
-      .call(chart);
-  }); */
+var x = d3.time.scale()
+  .domain([
+    new Date(Date.parse('2014-01-01')),
+    new Date(Date.parse('2014-12-01'))
+  ])
+  .range([0,300]);
 
-  return chart;
-});
+x(new Date(Date.parse('2014-02-01')));
 
-//Pie chart example data. Note how there is only a single array of key-value pairs.
-function exampleData() {
-  return  [
-      {
-        "label": "One",
-        "value" : 29.765957771107
-      } ,
-      {
-        "label": "Two",
-        "value" : 0
-      } ,
-      {
-        "label": "Three",
-        "value" : 32.807804682612
-      } ,
-      {
-        "label": "Four",
-        "value" : 196.45946739256
-      } ,
-      {
-        "label": "Five",
-        "value" : 0.19434030906893
-      } ,
-      {
-        "label": "Six",
-        "value" : 98.079782601442
-      } ,
-      {
-        "label": "Seven",
-        "value" : 13.925743130903
-      } ,
-      {
-        "label": "Eight",
-        "value" : 5.1387322875705
-      }
-    ];
-}
+var xAxis = d3.svg.axis()
+  .scale(x)         // x is the d3.time.scale()
+  .orient('bottom') // the ticks go below the graph
+  .ticks(3);        // specify the number of ticks
 
-function exampleData2() {
-  return  [
-      {
-        "label": "1",
-        "value" : 39.765957771107
-      } ,
-      {
-        "label": "2",
-        "value" : 0
-      } ,
-      {
-        "label": "3",
-        "value" : 52.807804682612
-      } ,
-      {
-        "label": "4",
-        "value" : 1296.45946739256
-      } ,
-      {
-        "label": "5",
-        "value" : 0.19434030906893
-      } ,
-      {
-        "label": "6",
-        "value" : 98.079782601442
-      } ,
-      {
-        "label": "7",
-        "value" : 13.925743130903
-      } ,
-      {
-        "label": "8",
-        "value" : 5.1387322875705
-      }
-    ];
-}
+var svg = d3.select('body')
+  .append('svg')        // create an <svg> element
+    .attr('width', 800) // set its dimentions
+    .attr('height', 300);
+
+svg.append('g')            // create a <g> element
+  .attr('class', 'x axis') // specify classes
+  .call(xAxis);            // let the axis do its thing
 
 </script>
 
